@@ -1,0 +1,8 @@
+form#EditForm{
+  display: flex;
+  flex-direction: column;
+}
+
+form#EditForm>.spinner-grow, .spinner-border {
+  align-self: center;
+}

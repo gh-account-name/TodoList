@@ -1,0 +1,16 @@
+h1{
+  margin-bottom: 2rem;
+}
+
+Input{
+  margin-bottom: 1.5rem;
+}
+
+form#AddForm{
+  display: flex;
+  flex-direction: column;
+}
+
+form#AddForm>.spinner-grow, .spinner-border {
+  align-self: center;
+}
