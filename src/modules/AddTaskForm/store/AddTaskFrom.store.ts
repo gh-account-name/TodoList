@@ -1,5 +1,6 @@
 import { action, computed, observable, makeObservable } from 'mobx';
 import { delay } from 'helpers/index';
+import { AddFormEntity } from 'domains/index';
 
 type PrivateFields = '_isLoading';
 
@@ -7,53 +8,26 @@ export class AddTaskFormStore {
   constructor() {
     makeObservable<this, PrivateFields>(this, {
       _isLoading: observable,
-      taskName: observable,
-      taskInfo: observable,
-      taskIsImportant: observable,
 
       isLoading: computed,
 
-      setTaskName: action,
-      setTaskInfo: action,
-      setTaskImportance: action,
       addTask: action,
     });
   }
 
   private _isLoading = false;
 
-  taskName = '';
-
-  taskInfo = '';
-
-  taskIsImportant = false;
-
   get isLoading(): boolean {
     return this._isLoading;
   }
 
-  setTaskName = (value: string) => {
-    this.taskName = value;
-  };
-
-  setTaskInfo = (value: string) => {
-    this.taskInfo = value;
-  };
-
-  setTaskImportance = () => {
-    this.taskIsImportant = !this.taskIsImportant;
-  };
-
-  addTask = async () => {
+  addTask = async (body: AddFormEntity) => {
     this._isLoading = true;
 
-    console.log({
-      name: this.taskName,
-      info: this.taskInfo,
-      isImportant: this.taskIsImportant,
-    });
+    console.log(body);
     console.log('sending data...');
     await delay(3000);
+    console.log('success!');
 
     this._isLoading = false;
   };

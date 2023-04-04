@@ -4,4 +4,5 @@ export interface InputProps {
   name?: string;
   labelTitle?: string;
   onReset?: () => void;
+  addClassName?: string;
 }

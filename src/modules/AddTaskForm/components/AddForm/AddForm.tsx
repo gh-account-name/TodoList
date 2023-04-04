@@ -1,40 +1,69 @@
-import React, { MouseEvent } from 'react';
+import React, { ChangeEvent } from 'react';
 import { observer } from 'mobx-react';
+import { Controller, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { AddTaskFormStoreInstance } from '../../store';
-import { Input, Checkbox, Loader } from 'components/index';
 import './AddForm.css';
+import { DEFAULT_VALUES } from './AddForm.utils';
+import { VALIDATION_SCHEMA } from './AddForm.validation';
+import { AddFormEntity } from 'domains/index';
+import { Checkbox, Loader, TextField } from 'components/index';
 
 function AddFormProto() {
-  const { isLoading, taskName, setTaskName, taskInfo, setTaskInfo, taskIsImportant, setTaskImportance, addTask } =
-    AddTaskFormStoreInstance;
+  const { isLoading, addTask } = AddTaskFormStoreInstance;
 
-  // const [nameInputValue, setNameInputValue] = useState<string>('');
-  // const [descInputValue, setDescInputValue] = useState<string>('');
-  // const [isImportant, setIsImportantValue] = useState<boolean>(false);
+  const { handleSubmit, control, reset, setValue } = useForm<AddFormEntity>({
+    defaultValues: DEFAULT_VALUES,
+    resolver: yupResolver(VALIDATION_SCHEMA),
+  });
 
-  // const onNameInputChange = (value: string) => {
-  //   setNameInputValue(value);
-  // };
-
-  // const onDescInputChange = (value: string) => {
-  //   setDescInputValue(value);
-  // };
-
-  // const isImportantCheckboxChange: ChangeEventHandler<HTMLElement> = () => {
-  //   setIsImportantValue(!isImportant);
-  // };
-
-  const onSubmit = (evt: MouseEvent<HTMLButtonElement>) => {
-    evt.preventDefault();
-    addTask();
+  const onNameChange = (evt: ChangeEvent<HTMLInputElement>) => {
+    setValue('name', evt.target.value);
   };
+
+  const onInfoChange = (evt: ChangeEvent<HTMLInputElement>) => {
+    setValue('info', evt.target.value);
+  };
+
+  const onImportanceChange = (evt: ChangeEvent<HTMLInputElement>) => {
+    setValue('isImportant', evt.target.checked);
+  };
+
+  const onSubmit = handleSubmit((data: AddFormEntity) => {
+    addTask(data).then(() => reset());
+  });
+
   return (
-    <form id="AddForm">
+    <form id="AddForm" onSubmit={onSubmit}>
       <Loader isLoading={isLoading}>
-        <Input name="taskTitle" labelTitle="Task name" onChange={setTaskName} value={taskName} />
-        <Input name="taskDescription" labelTitle="What to do (descripton)" onChange={setTaskInfo} value={taskInfo} />
-        <Checkbox label="Important" onChange={setTaskImportance} checked={taskIsImportant} />
-        <button type="submit" className="btn btn-secondary w-100 ml-auto" onClick={onSubmit}>
+        <Controller
+          control={control}
+          name="name"
+          render={({ field, fieldState: { error } }) => (
+            <TextField label="Task name" onChange={onNameChange} value={field.value} errorText={error?.message} />
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="info"
+          render={({ field, fieldState: { error } }) => (
+            <TextField
+              label="What to do (description)"
+              onChange={onInfoChange}
+              value={field.value}
+              errorText={error?.message}
+            />
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="isImportant"
+          render={({ field }) => <Checkbox label="Important" onChange={onImportanceChange} checked={field.value} />}
+        />
+
+        <button type="submit" className="btn btn-secondary w-100 ml-auto">
           Add task
         </button>
       </Loader>

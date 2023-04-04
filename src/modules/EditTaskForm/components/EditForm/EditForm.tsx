@@ -1,71 +1,92 @@
-import React, { MouseEvent } from 'react';
+import React, { ChangeEvent, useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { useParams } from 'react-router-dom';
 import { observer } from 'mobx-react';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { EditTaskFormStoreInstance } from '../../store';
-import { Input, Checkbox, Loader } from 'components/index';
+import { DEFAULT_VALUES } from './EditForm.utils';
+import { VALIDATION_SCHEMA } from './EditForm.validation';
+import { TextField, Checkbox, Loader } from 'components/index';
 import './EditForm.css';
+import { EditFormEntity } from 'domains/index';
 
 function EditFormProto() {
-  const {
-    editTask,
-    taskName,
-    setTaskName,
-    taskInfo,
-    setTaskInfo,
-    taskIsComplete,
-    setTaskCompleteness,
-    taskIsImportant,
-    setTaskImportance,
-    isTaskLoading,
-  } = EditTaskFormStoreInstance;
+  const { taskId } = useParams();
 
-  // const [nameInputValue, setNameInputValue] = useState<string>(task.name);
-  // const [descInputValue, setDescInputValue] = useState<string>(task.info);
-  // const [isImportant, setIsImportantValue] = useState<boolean>(task.isImportant);
-  // const [isCompleted, setIsCompletedValue] = useState<boolean>(task.isDone);
+  const { editTask, isTaskLoading, task } = EditTaskFormStoreInstance;
 
-  // пользовательский хук для привязки значения инпута к переменной сразу при объявлении;
-  // function useInputChange(initialValue: string | number) {
-  //   const [inputValue, setInputValue] = useState(initialValue);
-  //   const onInputChange = (value: string | number) => {
-  //     setInputValue(value);
-  //   };
-  //   return [inputValue, onInputChange];
-  // }
+  const { control, setValue, handleSubmit, reset } = useForm<EditFormEntity>({
+    defaultValues: DEFAULT_VALUES,
+    resolver: yupResolver(VALIDATION_SCHEMA),
+  });
 
-  // const onNameInputChange = (value: string) => {
-  //   setTaskName(value);
-  // };
+  useEffect((): void => {
+    EditTaskFormStoreInstance.taskId = taskId;
+  }, [EditTaskFormStoreInstance, taskId]);
 
-  // const onDescInputChange = (value: string) => {
-  //   setDescInputValue(value);
-  // };
+  useEffect((): void => {
+    if (task) {
+      reset(task);
+    }
+  }, [task]);
 
-  // const isImportantCheckboxChange: ChangeEventHandler<HTMLElement> = () => {
-  //   setIsImportantValue(!isImportant);
-  // };
-
-  // const isCompletedCheckboxChange: ChangeEventHandler<HTMLElement> = () => {
-  //   setIsCompletedValue(!isCompleted);
-  // };
-
-  const onSubmit = (evt: MouseEvent<HTMLButtonElement>) => {
-    evt.preventDefault();
-    editTask();
+  const onNameChange = (evt: ChangeEvent<HTMLInputElement>) => {
+    setValue('name', evt.target.value);
   };
-  return (
-    <form id="EditForm">
-      <Loader isLoading={isTaskLoading}>
-        <Input name="taskTitle" labelTitle="Task name" onChange={setTaskName} value={taskName ? taskName : ''} />
-        <Input
-          name="taskDescription"
-          labelTitle="What to do (descripton)"
-          onChange={setTaskInfo}
-          value={taskInfo ? taskInfo : ''}
-        />
-        <Checkbox label="Important" checked={taskIsImportant} onChange={setTaskImportance} />
-        <Checkbox label="Completed" checked={taskIsComplete} onChange={setTaskCompleteness} />
 
-        <button type="submit" className="btn btn-secondary w-100 ml-auto" onClick={onSubmit}>
+  const onInfoChange = (evt: ChangeEvent<HTMLInputElement>) => {
+    setValue('info', evt.target.value);
+  };
+
+  const onImportanceChange = (evt: ChangeEvent<HTMLInputElement>) => {
+    setValue('isImportant', evt.target.checked);
+  };
+
+  const onCompletenessChange = (evt: ChangeEvent<HTMLInputElement>) => {
+    setValue('isDone', evt.target.checked);
+  };
+
+  const onSubmit = handleSubmit((data) => {
+    editTask(taskId, data);
+  });
+
+  return (
+    <form id="EditForm" onSubmit={onSubmit}>
+      <Loader isLoading={isTaskLoading}>
+        <Controller
+          control={control}
+          name="name"
+          render={({ field, fieldState: { error } }) => (
+            <TextField label="Task name" onChange={onNameChange} value={field.value} errorText={error?.message} />
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="info"
+          render={({ field, fieldState: { error } }) => (
+            <TextField
+              label="What to do (description)"
+              onChange={onInfoChange}
+              value={field.value}
+              errorText={error?.message}
+            />
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="isImportant"
+          render={({ field }) => <Checkbox label="Important" onChange={onImportanceChange} checked={field.value} />}
+        />
+
+        <Controller
+          control={control}
+          name="isDone"
+          render={({ field }) => <Checkbox label="Completed" onChange={onCompletenessChange} checked={field.value} />}
+        />
+
+        <button type="submit" className="btn btn-secondary w-100 ml-auto">
           Edit task
         </button>
       </Loader>

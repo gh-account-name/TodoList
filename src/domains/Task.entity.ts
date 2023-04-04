@@ -18,13 +18,9 @@ export type FiltersType = typeof FILTER_TYPES[keyof typeof FILTER_TYPES];
 
 export interface SearchFormEntity {
   searchValue: string;
-  filterType: string;
+  filterType: FiltersType;
 }
 
-export const EmptyTask: TaskEntity = {
-  id: '',
-  name: '',
-  info: '',
-  isImportant: false,
-  isDone: false,
-};
+export type AddFormEntity = Omit<TaskEntity, 'id' | 'isDone'>;
+
+export type EditFormEntity = Omit<TaskEntity, 'id'>;

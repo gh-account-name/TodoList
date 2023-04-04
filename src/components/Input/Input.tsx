@@ -1,7 +1,7 @@
 import React, { ChangeEventHandler } from 'react';
 import { InputProps } from './Input.types';
 
-export function Input({ onChange, value, name, labelTitle, onReset }: InputProps) {
+export function Input({ onChange, value, name, labelTitle, onReset, addClassName }: InputProps) {
   const InputOnChange: ChangeEventHandler<HTMLInputElement> = (evt) => onChange(evt.target.value);
 
   const onInputReset = (evt: MouseEvent) => {
@@ -18,7 +18,14 @@ export function Input({ onChange, value, name, labelTitle, onReset }: InputProps
       ) : (
         ''
       )}
-      <input className="form-control" type="text" name={name} id={name} value={value} onChange={InputOnChange} />
+      <input
+        className={`form-control ${addClassName}`}
+        type="text"
+        name={name}
+        id={name}
+        value={value}
+        onChange={InputOnChange}
+      />
     </>
   );
 }

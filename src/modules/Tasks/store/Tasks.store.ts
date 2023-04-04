@@ -51,6 +51,7 @@ export class TasksStore {
     this._tasks = TasksMock;
     this._tasksStats = TasksStatsMock;
     await delay(3000);
+    console.log('success!');
 
     this._isTasksLoading = false;
   };

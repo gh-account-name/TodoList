@@ -1,5 +1,5 @@
-import { action, computed, observable, makeObservable } from 'mobx';
-import { EmptyTask, TaskEntity } from 'domains/index';
+import { action, computed, observable, makeObservable, reaction } from 'mobx';
+import { EditFormEntity, TaskEntity } from 'domains/index';
 import { TasksMock } from '__mocks__/index';
 import { delay } from 'helpers/index';
 
@@ -10,34 +10,28 @@ export class EditTaskFormStore {
     makeObservable<this, PrivateFields>(this, {
       _task: observable,
       _isTaskLoading: observable,
-      taskName: observable,
-      taskInfo: observable,
-      taskIsComplete: observable,
-      taskIsImportant: observable,
+      taskId: observable,
 
       task: computed,
       isTaskLoading: computed,
 
       loadTask: action,
       editTask: action,
-      setTaskName: action,
-      setTaskInfo: action,
-      setTaskCompleteness: action,
-      setTaskImportance: action,
     });
+
+    reaction(
+      () => this.taskId,
+      (): void => {
+        this.loadTask(this.taskId);
+      }
+    );
   }
 
-  private _task: TaskEntity | undefined = EmptyTask;
+  private _task: TaskEntity | undefined = undefined;
 
   private _isTaskLoading = false;
 
-  taskName = this.task?.name;
-
-  taskInfo = this.task?.info;
-
-  taskIsComplete = this.task?.isDone;
-
-  taskIsImportant = this.task?.isImportant;
+  taskId: undefined | string = undefined;
 
   get task(): TaskEntity | undefined {
     return this._task;
@@ -47,57 +41,30 @@ export class EditTaskFormStore {
     return this._isTaskLoading;
   }
 
-  loadTask = async (id: string) => {
+  loadTask = async (id: string | undefined) => {
     this._isTaskLoading = true;
 
-    console.log(`searching id:${id}`);
-
+    console.log(`searching id:${id}...`);
     this._task = TasksMock.find((task) => task.id == id);
-
-    this.taskName = this.task?.name;
-    this.taskInfo = this.task?.info;
-    this.taskIsComplete = this.task?.isDone;
-    this.taskIsImportant = this.task?.isImportant;
-
     await delay(3000);
+    console.log(`success!`);
 
     this._isTaskLoading = false;
   };
 
-  editTask = async () => {
-    if (this._task != undefined) {
+  editTask = async (id: string | undefined, body: EditFormEntity) => {
+    if (id) {
       this._isTaskLoading = true;
 
-      console.log({
-        id: this.task?.id,
-        name: this.taskName,
-        info: this.taskInfo,
-        isDone: this.taskIsComplete,
-        isImportant: this.taskIsImportant,
-      });
+      console.log(id, body);
       console.log(`sending data...`);
       await delay(3000);
+      console.log(`success!`);
 
       this._isTaskLoading = false;
     } else {
-      console.error('action has blocked because task is undefined');
+      console.error('action has blocked because id is undefined');
     }
-  };
-
-  setTaskName = (value: string) => {
-    this.taskName = value;
-  };
-
-  setTaskInfo = (value: string) => {
-    this.taskInfo = value;
-  };
-
-  setTaskCompleteness = () => {
-    this.taskIsComplete = !this.taskIsComplete;
-  };
-
-  setTaskImportance = () => {
-    this.taskIsImportant = !this.taskIsImportant;
   };
 }
 
