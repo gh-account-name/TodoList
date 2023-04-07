@@ -5,7 +5,7 @@ import { TasksStoreInstance } from './store';
 
 function TasksProto() {
   useEffect(() => {
-    TasksStoreInstance.loadTasks();
+    TasksStoreInstance.loadTasks({ filterType: 'All', searchValue: '' });
   });
 
   return (

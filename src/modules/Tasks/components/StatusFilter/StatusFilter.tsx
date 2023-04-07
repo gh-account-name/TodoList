@@ -11,18 +11,16 @@ function StatusFilterProto({ onChange, tasksType, disabled }: StatusFilterProps)
 
   return (
     <div className="btn-group" onClick={onFilterChange}>
-      <button type="button" className={tasksType === FILTER_TYPES.ALL ? CLASSNAMES.ACTIVE : CLASSNAMES.SECONDARY}>
-        {FILTER_TYPES.ALL}
-      </button>
-      <button type="button" className={tasksType === FILTER_TYPES.ACTIVE ? CLASSNAMES.ACTIVE : CLASSNAMES.SECONDARY}>
-        {FILTER_TYPES.ACTIVE}
-      </button>
-      <button type="button" className={tasksType === FILTER_TYPES.DONE ? CLASSNAMES.ACTIVE : CLASSNAMES.SECONDARY}>
-        {FILTER_TYPES.DONE}
-      </button>
-      <button type="button" className={tasksType === FILTER_TYPES.IMPORTANT ? CLASSNAMES.ACTIVE : CLASSNAMES.SECONDARY}>
-        {FILTER_TYPES.IMPORTANT}
-      </button>
+      {Object.values(FILTER_TYPES).map((filterValue, ind) => {
+        return (
+          <button
+            key={ind}
+            type="button"
+            className={tasksType === filterValue ? CLASSNAMES.ACTIVE : CLASSNAMES.SECONDARY}>
+            {filterValue}
+          </button>
+        );
+      })}
     </div>
   );
 }

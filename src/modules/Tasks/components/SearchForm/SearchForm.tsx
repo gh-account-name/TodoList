@@ -1,11 +1,10 @@
-import React, { useState, MouseEvent, useCallback } from 'react';
+import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { observer } from 'mobx-react';
 import { TasksStoreInstance } from '../../store';
 import { StatusFilter } from '../StatusFilter';
 import { DEFAULT_VALUES } from './SearchForm.utils';
 import { SearchInput } from 'components/index';
-import { FILTER_TYPES } from 'constants/index';
 import { FiltersType, SearchFormEntity } from 'domains/index';
 import './SearchForm.css';
 
@@ -29,7 +28,7 @@ function SearchFormProto() {
   };
 
   const onSubmit = handleSubmit((data: SearchFormEntity) => {
-    loadTasks(data).then(() => onReset());
+    loadTasks(data);
   });
 
   return (

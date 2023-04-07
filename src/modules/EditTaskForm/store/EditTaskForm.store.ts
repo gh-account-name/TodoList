@@ -1,19 +1,20 @@
 import { action, computed, observable, makeObservable, reaction } from 'mobx';
 import { EditFormEntity, TaskEntity } from 'domains/index';
-import { TasksMock } from '__mocks__/index';
-import { delay } from 'helpers/index';
+import { TasksAgentInstance } from 'http/agent';
+import { mapToInternalTask } from 'helpers/index';
 
-type PrivateFields = '_task' | '_isTaskLoading';
+type PrivateFields = '_task' | '_isTaskLoading' | '_taskId';
 
 export class EditTaskFormStore {
   constructor() {
     makeObservable<this, PrivateFields>(this, {
       _task: observable,
       _isTaskLoading: observable,
-      taskId: observable,
+      _taskId: observable,
 
       task: computed,
       isTaskLoading: computed,
+      taskId: computed,
 
       loadTask: action,
       editTask: action,
@@ -31,39 +32,65 @@ export class EditTaskFormStore {
 
   private _isTaskLoading = false;
 
-  taskId: undefined | string = undefined;
+  private _taskId: undefined | string = undefined;
 
   get task(): TaskEntity | undefined {
     return this._task;
+  }
+
+  set task(value: TaskEntity | undefined) {
+    this._task = value;
   }
 
   get isTaskLoading(): boolean {
     return this._isTaskLoading;
   }
 
-  loadTask = async (id: string | undefined) => {
-    this._isTaskLoading = true;
+  set isTaskLoading(value: boolean) {
+    this._isTaskLoading = value;
+  }
 
-    console.log(`searching id:${id}...`);
-    this._task = TasksMock.find((task) => task.id == id);
-    await delay(3000);
-    console.log(`success!`);
+  get taskId(): undefined | string {
+    return this._taskId;
+  }
 
-    this._isTaskLoading = false;
+  set taskId(value: undefined | string) {
+    this._taskId = value;
+  }
+
+  loadTask = async (taskId: string | undefined) => {
+    if (taskId) {
+      this.isTaskLoading = true;
+
+      try {
+        const task = await TasksAgentInstance.getTask(taskId);
+        this.task = mapToInternalTask(task);
+      } catch (er) {
+        alert('Ошибка. Не удалось загрузить таск');
+        throw er;
+      } finally {
+        this.isTaskLoading = false;
+      }
+    }
   };
 
-  editTask = async (id: string | undefined, body: EditFormEntity) => {
-    if (id) {
-      this._isTaskLoading = true;
+  editTask = async (taskId: string | undefined, body: EditFormEntity) => {
+    if (taskId) {
+      this.isTaskLoading = true;
 
-      console.log(id, body);
-      console.log(`sending data...`);
-      await delay(3000);
-      console.log(`success!`);
-
-      this._isTaskLoading = false;
-    } else {
-      console.error('action has blocked because id is undefined');
+      try {
+        await TasksAgentInstance.updateTask(taskId, {
+          name: body.name,
+          info: body.info,
+          isImportant: body.isImportant,
+          isCompleted: body.isDone,
+        });
+      } catch (er) {
+        alert('Ошибка. Не удалось обновить таск');
+        throw er;
+      } finally {
+        this.isTaskLoading = false;
+      }
     }
   };
 }

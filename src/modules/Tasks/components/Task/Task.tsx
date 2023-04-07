@@ -48,7 +48,6 @@ export function Task({ task, changeTaskImportance, changeTaskCompleteness, delet
             <i className="fa fa-trash-o" />
           </button>
 
-          {/* TODO: Исправить ссылку, когда будет страница редактирования */}
           <Link className="task__btn btn btn-outline-secondary btn-sm float-right" to={`${ROOT}${EDIT}/${id}`}>
             <i className="fa fa-pencil" />
           </Link>

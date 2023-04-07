@@ -1,35 +1,41 @@
 import { action, computed, observable, makeObservable } from 'mobx';
-import { delay } from 'helpers/index';
-import { AddFormEntity } from 'domains/index';
+import { TasksAgentInstance } from 'http/agent';
+import { AddTaskRequest } from 'http/model';
 
-type PrivateFields = '_isLoading';
+type PrivateFields = '_isTasksLoading';
 
 export class AddTaskFormStore {
   constructor() {
     makeObservable<this, PrivateFields>(this, {
-      _isLoading: observable,
+      _isTasksLoading: observable,
 
-      isLoading: computed,
+      isTasksLoading: computed,
 
       addTask: action,
     });
   }
 
-  private _isLoading = false;
+  private _isTasksLoading = false;
 
-  get isLoading(): boolean {
-    return this._isLoading;
+  get isTasksLoading(): boolean {
+    return this._isTasksLoading;
   }
 
-  addTask = async (body: AddFormEntity) => {
-    this._isLoading = true;
+  set isTasksLoading(value: boolean) {
+    this._isTasksLoading = value;
+  }
 
-    console.log(body);
-    console.log('sending data...');
-    await delay(3000);
-    console.log('success!');
-
-    this._isLoading = false;
+  addTask = async (taskData: AddTaskRequest) => {
+    this.isTasksLoading = true;
+    try {
+      taskData.isCompleted = false; // Эта строка нужна чтобы таска потом отображалась в Active
+      await TasksAgentInstance.addTask(taskData);
+    } catch (er) {
+      alert('Ошибка. Попробуйте снова позже.');
+      throw er;
+    } finally {
+      this.isTasksLoading = false;
+    }
   };
 }
 

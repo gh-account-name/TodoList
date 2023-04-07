@@ -1,5 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import { observer } from 'mobx-react';
+import { useNavigate } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { AddTaskFormStoreInstance } from '../../store';
@@ -8,9 +9,12 @@ import { DEFAULT_VALUES } from './AddForm.utils';
 import { VALIDATION_SCHEMA } from './AddForm.validation';
 import { AddFormEntity } from 'domains/index';
 import { Checkbox, Loader, TextField } from 'components/index';
+import { PATH_LIST } from 'constants/index';
 
 function AddFormProto() {
-  const { isLoading, addTask } = AddTaskFormStoreInstance;
+  const { isTasksLoading, addTask } = AddTaskFormStoreInstance;
+
+  const navigate = useNavigate();
 
   const { handleSubmit, control, reset, setValue } = useForm<AddFormEntity>({
     defaultValues: DEFAULT_VALUES,
@@ -30,12 +34,17 @@ function AddFormProto() {
   };
 
   const onSubmit = handleSubmit((data: AddFormEntity) => {
-    addTask(data).then(() => reset());
+    addTask(data)
+      .then(() => {
+        reset();
+        navigate(PATH_LIST.ROOT);
+      })
+      .catch(() => false);
   });
 
   return (
     <form id="AddForm" onSubmit={onSubmit}>
-      <Loader isLoading={isLoading}>
+      <Loader isLoading={isTasksLoading}>
         <Controller
           control={control}
           name="name"

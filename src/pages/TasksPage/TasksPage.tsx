@@ -6,7 +6,7 @@ import { PATH_LIST } from 'constants/index';
 
 export function TasksPage() {
   return (
-    <PageContainer>
+    <PageContainer className="pb-5">
       <h1>TODO LIST</h1>
       <Tasks />
       <Link className="btn btn-secondary d-block ml-auto" to={PATH_LIST.ADD}>

@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { EditTaskFormStoreInstance } from '../../store';
@@ -9,16 +9,21 @@ import { VALIDATION_SCHEMA } from './EditForm.validation';
 import { TextField, Checkbox, Loader } from 'components/index';
 import './EditForm.css';
 import { EditFormEntity } from 'domains/index';
+import { PATH_LIST } from 'constants/index';
 
 function EditFormProto() {
   const { taskId } = useParams();
 
+  const navigate = useNavigate();
+
   const { editTask, isTaskLoading, task } = EditTaskFormStoreInstance;
 
-  const { control, setValue, handleSubmit, reset } = useForm<EditFormEntity>({
+  const { control, setValue, handleSubmit, reset, watch } = useForm<EditFormEntity>({
     defaultValues: DEFAULT_VALUES,
     resolver: yupResolver(VALIDATION_SCHEMA),
   });
+
+  const completedCheckboxValue = watch('isDone');
 
   useEffect((): void => {
     EditTaskFormStoreInstance.taskId = taskId;
@@ -43,11 +48,20 @@ function EditFormProto() {
   };
 
   const onCompletenessChange = (evt: ChangeEvent<HTMLInputElement>) => {
+    if (!completedCheckboxValue) {
+      setValue('isImportant', false);
+    }
+
     setValue('isDone', evt.target.checked);
   };
 
   const onSubmit = handleSubmit((data) => {
-    editTask(taskId, data);
+    editTask(taskId, data)
+      .then(() => {
+        EditTaskFormStoreInstance.taskId = undefined;
+        navigate(PATH_LIST.ROOT);
+      })
+      .catch(() => false);
   });
 
   return (
@@ -77,7 +91,14 @@ function EditFormProto() {
         <Controller
           control={control}
           name="isImportant"
-          render={({ field }) => <Checkbox label="Important" onChange={onImportanceChange} checked={field.value} />}
+          render={({ field }) => (
+            <Checkbox
+              label="Important"
+              onChange={onImportanceChange}
+              checked={field.value}
+              disabled={completedCheckboxValue}
+            />
+          )}
         />
 
         <Controller
