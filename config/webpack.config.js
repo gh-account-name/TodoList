@@ -168,6 +168,7 @@ module.exports = {
       ...env.stringified,
     }),
     new HtmlWebpackPlugin({
+      title: 'ToDo App',
       inject: false,
       template: `${src}/index.html`,
       ...(isProduction
