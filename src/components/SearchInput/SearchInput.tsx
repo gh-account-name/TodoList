@@ -1,9 +1,9 @@
-import React, { ChangeEventHandler, MouseEvent, memo } from 'react';
+import React, { MouseEvent, memo } from 'react';
 import './SearchInput.css';
 import { SearchInputProps } from './SearchInput.types';
 
-function SearchInputProto({ onChange, value, onReset, disabled }: SearchInputProps) {
-  const onSearchInputChange: ChangeEventHandler<HTMLInputElement> = (evt) => onChange(evt.target.value);
+function SearchInputProto({ onReset, ...props }: SearchInputProps) {
+  // const onSearchInputChange: ChangeEventHandler<HTMLInputElement> = (evt) => onChange(evt.target.value);
 
   const onResetBtnClick = (evt: MouseEvent<HTMLButtonElement>) => {
     evt.preventDefault();
@@ -12,13 +12,7 @@ function SearchInputProto({ onChange, value, onReset, disabled }: SearchInputPro
 
   return (
     <div className="search-panel">
-      <input
-        className="form-control search-input"
-        placeholder="search"
-        onChange={onSearchInputChange}
-        value={value}
-        disabled={disabled}
-      />
+      <input className="form-control search-input" placeholder="search" {...props} />
       <button className="close" onClick={onResetBtnClick}>
         <i className="fa fa-close"></i>
       </button>

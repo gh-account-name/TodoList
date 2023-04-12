@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { observer } from 'mobx-react';
 import { TasksStoreInstance } from '../../store';
@@ -15,8 +15,8 @@ function SearchFormProto() {
     defaultValues: DEFAULT_VALUES,
   });
 
-  const onSearchInputChange = (value: string) => {
-    setValue('searchValue', value);
+  const onSearchInputChange = (evt: ChangeEvent<HTMLInputElement>) => {
+    setValue('searchValue', evt.target.value);
   };
 
   const onReset = () => {
